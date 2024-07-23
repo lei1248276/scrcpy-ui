@@ -18,8 +18,8 @@ module.exports = {
     'plugin:vue/vue3-essential',
     'plugin:vue/vue3-recommended',
     '@vue/eslint-config-typescript',
-    'plugin:tailwindcss/recommended'
-    // './.eslintrc-auto-import.json'
+    'plugin:tailwindcss/recommended',
+    './.eslintrc-auto-import.json'
   ],
 
   // add your custom rules here

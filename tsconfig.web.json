@@ -4,7 +4,9 @@
     "src/global.d.ts",
     "src/renderer/src/env.d.ts",
     "src/renderer/src/**/*",
-    "src/renderer/src/**/*.vue"
+    "src/renderer/src/**/*.vue",
+    "src/renderer/auto-imports.d.ts",
+    "src/renderer/components.d.ts"
   ],
   "compilerOptions": {
     "composite": true,
