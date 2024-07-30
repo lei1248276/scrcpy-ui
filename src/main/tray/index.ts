@@ -1,5 +1,5 @@
 import { app, Tray, Menu, nativeImage } from 'electron'
-import Scrcpy from '../scrcpy'
+import Scrcpy, { defaultScrcpyOptions } from '../scrcpy'
 import { appStore } from '../store/appStore'
 
 import icon_22x22 from '../../../resources/icon_22x22.png?asset'
@@ -7,22 +7,6 @@ import icon_22x22 from '../../../resources/icon_22x22.png?asset'
 let tray = null as Tray | null
 
 const trayTemplate: Parameters<typeof Menu.buildFromTemplate>[0] = [
-  {
-    id: 'tcp1',
-    type: 'radio',
-    label: '192.168.11.102',
-    click: () => {
-      Scrcpy.start(['--tcpip=192.168.11.102:5555'])
-    }
-  },
-  {
-    id: 'tcp2',
-    type: 'radio',
-    label: '10.26.0.222',
-    click: () => {
-      Scrcpy.start(['--tcpip=10.26.0.222:5555'])
-    }
-  },
   {
     id: 'usb',
     type: 'radio',
@@ -45,9 +29,12 @@ const trayTemplate: Parameters<typeof Menu.buildFromTemplate>[0] = [
     id: 'alwaysTop',
     label: 'Always on Top',
     type: 'checkbox',
-    checked: (appStore as any).get('alwaysTop') || false,
+    checked: (appStore as any).get('alwaysTop') ? (defaultScrcpyOptions.push('--always-on-top'), true) : false,
     click: (menuItem) => {
       (appStore as any).set('alwaysTop', menuItem.checked)
+      menuItem.checked
+        ? defaultScrcpyOptions.splice(defaultScrcpyOptions.indexOf('--always-on-top'), 1)
+        : defaultScrcpyOptions.push('--always-on-top')
     }
   },
   {
@@ -71,20 +58,46 @@ const trayTemplate: Parameters<typeof Menu.buildFromTemplate>[0] = [
   }
 ]
 
-export const updateTray = (match: typeof trayTemplate[number] & {id: string}) => {
+//* 从 appStore 缓存中获取 ips，创建对应的菜单项
+function getIps() {
+  return ((appStore as any).get('ips') || []).map((ip: string, i: number) => ({
+    id: 'tcp' + i,
+    type: 'radio',
+    label: ip,
+    click: () => {
+      Scrcpy.start(['--tcpip=' + ip])
+    }
+  }))
+}
+
+let timer: ReturnType<typeof setTimeout> | null = null
+export const addTray = (...item: typeof trayTemplate[number][]) => {
   if (!tray) return
 
-  const item = trayTemplate.find((item) => item.id === match.id)
+  if (timer) clearTimeout(timer)
+  timer = setTimeout(() => {
+    const contextMenu = Menu.buildFromTemplate(item.concat(trayTemplate))
+    tray!.setContextMenu(contextMenu)
+    timer = null
+  })
+}
+
+export const updateTray = (match: typeof trayTemplate[number]) => {
+  if (!tray) return
+
+  const item = trayTemplate.find((item) => item.id === match.id || item.label === match.label)
   if (!item) return console.error('未找到匹配项')
 
   Object.assign(item, match)
-  const contextMenu = Menu.buildFromTemplate(trayTemplate)
+  const contextMenu = Menu.buildFromTemplate(getIps().concat(trayTemplate))
   tray.setContextMenu(contextMenu)
 }
 
 export const createTray = () => {
+  if (tray) return tray
+
   tray = new Tray(nativeImage.createFromPath(icon_22x22))
-  const contextMenu = Menu.buildFromTemplate(trayTemplate)
+  const contextMenu = Menu.buildFromTemplate(getIps().concat(trayTemplate))
   tray.setContextMenu(contextMenu)
   tray.popUpContextMenu(contextMenu)
 

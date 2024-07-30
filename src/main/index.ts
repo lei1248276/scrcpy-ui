@@ -3,7 +3,8 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { join } from 'node:path'
 import fixPath from 'fix-path'
 import Scrcpy from './scrcpy'
-import { createTray } from './tray'
+import { createTray, addTray, updateTray } from './tray'
+import { appStore } from './store/appStore'
 
 let win: BrowserWindow
 
@@ -20,7 +21,7 @@ function createWindow() {
   })
 
   win.on('ready-to-show', () => {
-    console.log('%c🚀 ~ file: index.ts:21 ~ mainWindow.on ~ ready-to-show:', 'color:#a8c7fa')
+    console.log('🚀 ~ file: index.ts:21 ~ mainWindow.on ~ ready-to-show:')
     win.show()
   })
 
@@ -55,23 +56,43 @@ app.whenReady().then(() => {
   // and ignore CommandOrControl + R in production.
   // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
   app.on('browser-window-created', (_, window) => {
-    console.log('%c🚀 ~ file: index.ts:50 ~ app.on ~ browser-window-created:', 'color:#a8c7fa')
+    console.log('🚀 ~ file: index.ts:50 ~ app.on ~ browser-window-created:')
 
     optimizer.watchWindowShortcuts(window)
   })
 
   app.on('activate', function() {
-    console.log('%c🚀 ~ file: index.ts:60 ~ app.on ~ activate:', 'color:#a8c7fa')
+    console.log('🚀 ~ file: index.ts:60 ~ app.on ~ activate:')
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 
-  ipcMain.on('scrcpy', (_, _ip: string) => {
-    Scrcpy.start(_ip ? [`--tcpip=${_ip}`] : ['--select-usb'])
+  ipcMain.on('setStoreIps', (_, ips: string[]) => {
+    ;(appStore as any).set('ips', ips)
+    addTray(...ips.map((ip, i) => ({
+      id: 'tcp' + (i + 1),
+      type: 'radio',
+      label: ip,
+      checked: false,
+      click: () => {
+        Scrcpy.start(['--tcpip=' + ip])
+      }
+    })) as any)
+  })
+
+  ipcMain.on('scrcpy', (_, ip: string) => {
+    if (ip) {
+      Scrcpy.start(['--tcpip=' + ip])
+      updateTray({ label: ip, checked: true })
+    } else {
+      Scrcpy.start(['--select-usb'])
+      updateTray({ id: 'usb', label: 'USB', checked: true })
+    }
+    updateTray({ id: 'close', checked: false })
     !win?.isDestroyed() && win?.close()
 
-    ipcMain.on('scrcpy-kill', () => {
+    ipcMain.once('scrcpy-kill', () => {
       Scrcpy.stop()
     })
   })
