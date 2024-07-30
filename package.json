@@ -22,8 +22,11 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.0",
     "@electron-toolkit/utils": "^3.0.0",
+    "@radix-icons/vue": "^1.0.0",
+    "@vueuse/core": "^10.11.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "electron-store": "^10.0.0",
     "electron-updater": "^6.1.7",
     "fix-path": "^4.0.0",
     "lucide-vue-next": "^0.414.0",

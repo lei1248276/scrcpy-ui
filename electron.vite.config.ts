@@ -8,7 +8,7 @@ import Components from 'unplugin-vue-components/vite'
 
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin({ exclude: ['fix-path'] })]
+    plugins: [externalizeDepsPlugin({ exclude: ['fix-path', 'electron-store'] })]
   },
   preload: {
     plugins: [externalizeDepsPlugin()]
@@ -37,7 +37,7 @@ export default defineConfig({
         dirs: [
           'src/renderer/src/components/**',
           'src/renderer/src/hooks/**',
-          'src/renderer/src/utils'
+          'src/renderer/src/utils/**'
         ],
         vueTemplate: true,
         dts: true, // or a custom path

@@ -39,6 +39,7 @@ module.exports = {
     }],
     'vue/no-v-html': 'off',
     'vue/no-v-for-template-key': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
     'accessor-pairs': 2,
     'arrow-spacing': [2, {
