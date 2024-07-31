@@ -107,7 +107,7 @@ onMounted(() => {
 
 const saveIps = () => {
   localStorage.setItem('ips', JSON.stringify(ips))
-  window.electron.ipcRenderer.send('setStoreIps', ips.map((v) => v.value))
+  window.electron.ipcRenderer.send('setStoreIps', ips.map((v) => v.value).filter(Boolean))
 }
 
 const onScrcpy = (ip: string) => {

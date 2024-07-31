@@ -60,14 +60,16 @@ const trayTemplate: Parameters<typeof Menu.buildFromTemplate>[0] = [
 
 //* 从 appStore 缓存中获取 ips，创建对应的菜单项
 function getIps() {
-  return ((appStore as any).get('ips') || []).map((ip: string, i: number) => ({
-    id: 'tcp' + i,
-    type: 'radio',
-    label: ip,
-    click: () => {
-      Scrcpy.start(['--tcpip=' + ip])
-    }
-  }))
+  return (appStore as any).get('ips')
+    ?.filter(Boolean)
+    .map((ip: string, i: number) => ({
+      id: 'tcp' + i,
+      type: 'radio',
+      label: ip,
+      click: () => {
+        Scrcpy.start(['--tcpip=' + ip])
+      }
+    })) as typeof trayTemplate
 }
 
 let timer: ReturnType<typeof setTimeout> | null = null
