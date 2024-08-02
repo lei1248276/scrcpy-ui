@@ -3,5 +3,6 @@
     "rushstack",
     "scrcpy",
     "typecheck"
-  ]
+  ],
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
