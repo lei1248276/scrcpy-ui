@@ -51,7 +51,7 @@ app.whenReady().then(() => {
 
   // createWindow()
 
-  fixPath()
+  setTimeout(fixPath)
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
