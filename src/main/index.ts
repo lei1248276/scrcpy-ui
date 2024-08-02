@@ -49,7 +49,7 @@ app.whenReady().then(() => {
 
   createTray()
 
-  // createWindow()
+  !appStore.get('hideWindow') && createWindow()
 
   setTimeout(fixPath)
 

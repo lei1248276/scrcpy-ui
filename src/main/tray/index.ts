@@ -51,6 +51,15 @@ const trayTemplate: Parameters<typeof Menu.buildFromTemplate>[0] = [
       menuItem.checked ? app.dock.hide() : app.dock.show()
     }
   },
+  {
+    id: 'hideWindow',
+    label: 'Hide Window',
+    type: 'checkbox',
+    checked: appStore.get('hideWindow'),
+    click: (menuItem) => {
+      appStore.set('hideWindow', menuItem.checked)
+    }
+  },
   { type: 'separator' },
   {
     id: 'exit',

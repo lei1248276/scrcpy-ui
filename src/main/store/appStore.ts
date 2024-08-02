@@ -4,6 +4,7 @@ export const appStore = new Store({
   defaults: {
     ips: [] as string[],
     alwaysTop: false,
-    hideDock: false
+    hideDock: false,
+    hideWindow: false
   }
 })
