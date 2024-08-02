@@ -64,8 +64,8 @@ const trayTemplate: Parameters<typeof Menu.buildFromTemplate>[0] = [
 
 //* 从 appStore 缓存中获取 ips，创建对应的菜单项
 function getIps() {
-  return (appStore.get('ips') as string[])
-    ?.filter(Boolean)
+  return appStore.get('ips')
+    .filter(Boolean)
     .map((ip: string, i: number) => {
       const obj: typeof trayTemplate[number] = {
         id: 'tcp' + i,
