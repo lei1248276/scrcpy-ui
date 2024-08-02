@@ -29,9 +29,11 @@ const trayTemplate: Parameters<typeof Menu.buildFromTemplate>[0] = [
     id: 'alwaysTop',
     label: 'Always on Top',
     type: 'checkbox',
-    checked: (appStore as any).get('alwaysTop') ? (defaultScrcpyOptions.push('--always-on-top'), true) : false,
+    checked: appStore.get('alwaysTop')
+      ? (defaultScrcpyOptions.push('--always-on-top'), true)
+      : false,
     click: (menuItem) => {
-      (appStore as any).set('alwaysTop', menuItem.checked)
+      appStore.set('alwaysTop', menuItem.checked)
       menuItem.checked
         ? defaultScrcpyOptions.splice(defaultScrcpyOptions.indexOf('--always-on-top'), 1)
         : defaultScrcpyOptions.push('--always-on-top')
@@ -41,9 +43,11 @@ const trayTemplate: Parameters<typeof Menu.buildFromTemplate>[0] = [
     id: 'hideDock',
     label: 'Hide Dock',
     type: 'checkbox',
-    checked: (appStore as any).get('hideDock') ? (app.dock.hide(), true) : false,
+    checked: appStore.get('hideDock')
+      ? (app.dock.hide(), true)
+      : false,
     click: (menuItem) => {
-      (appStore as any).set('hideDock', menuItem.checked)
+      appStore.set('hideDock', menuItem.checked)
       menuItem.checked ? app.dock.hide() : app.dock.show()
     }
   },

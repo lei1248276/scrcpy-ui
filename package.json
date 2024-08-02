@@ -5,6 +5,7 @@
   "main": "./out/main/index.js",
   "author": "Jaye",
   "homepage": "https://electron-vite.org",
+  "type": "module",
   "scripts": {
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts,.vue --fix",
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",

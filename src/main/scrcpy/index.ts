@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process'
-import { EventEmitter } from 'node:stream'
+import EventEmitter from 'node:stream'
 
 export const defaultScrcpyOptions = [
   '--no-audio',

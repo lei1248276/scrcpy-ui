@@ -1,6 +1,7 @@
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import fixPath from 'fix-path'
 import Scrcpy from './scrcpy'
 import { createTray, addTray, updateTray } from './tray'
@@ -15,7 +16,7 @@ function createWindow() {
     height: 800,
     show: false,
     webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
+      preload: fileURLToPath(new URL('../preload/index.mjs', import.meta.url)),
       sandbox: false
     }
   })
@@ -69,7 +70,7 @@ app.whenReady().then(() => {
   })
 
   ipcMain.on('setStoreIps', (_, ips: string[]) => {
-    ;(appStore as any).set('ips', ips)
+    appStore.set('ips', ips)
     addTray(...ips.map((ip, i) => ({
       id: 'tcp' + (i + 1),
       type: 'radio',
@@ -78,7 +79,7 @@ app.whenReady().then(() => {
       click: () => {
         Scrcpy.start(['--tcpip=' + ip])
       }
-    })) as any)
+    } as const)))
   })
 
   ipcMain.on('scrcpy', (_, ip: string) => {
