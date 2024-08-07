@@ -59,6 +59,19 @@
         Scrcpy Kill
       </Button>
     </div>
+
+    <div
+      ref="logRef"
+      class="flex h-[50vh] w-2/3 flex-none flex-col gap-y-2 overflow-y-scroll break-words"
+    >
+      <span
+        v-for="({ type, data }, i) in messages"
+        :key="i"
+        :class="type === 'stderr' ? 'text-orange-400' : type === 'error' || type === 'close' ? 'text-red-500' : ''"
+      >
+        {{ data }}
+      </span>
+    </div>
   </div>
 </template>
 
@@ -66,13 +79,29 @@
 import { CaretSortIcon, CheckIcon, Cross2Icon } from '@radix-icons/vue'
 import { cn } from '@renderer/utils/lib/utils'
 
+type Message = {
+  type: 'stdout' | 'stderr' | 'close' | 'error'
+  data: string
+}
+
 const open = ref(false)
 const ips = reactive<string[]>([])
 const ip = ref('')
+const messages = ref<Message[]>([])
+
+const logRef = shallowRef<HTMLDivElement | null>(null)
 
 window.electron.ipcRenderer.invoke('getStoreIps').then(_ips => {
   console.log('%c🚀 ~ file: App.vue:74 ~ onMounted ~ _ips:', 'color:#a8c7fa', _ips)
   ips.push(..._ips)
+})
+
+window.electron.ipcRenderer.on('scrcpyMessage', (_, data) => {
+  console.log('%c🚀 ~ file: App.vue:82 ~ window.electron.ipcRenderer.on ~ data:', 'color:#a8c7fa', data)
+  messages.value.push(data)
+  nextTick(() => {
+    logRef.value?.scrollTo(0, logRef.value.scrollHeight)
+  })
 })
 
 const saveIps = () => {
