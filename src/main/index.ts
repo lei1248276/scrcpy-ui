@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import fixPath from 'fix-path'
 import Scrcpy from './scrcpy'
-import { createTray, addTray, updateTray } from './tray'
+import { createTray, replaceTray, updateTray } from './tray'
 import { appStore } from './store/appStore'
 
 function createWindow() {
@@ -68,7 +68,7 @@ app.whenReady().then(() => {
 
   ipcMain.on('setStoreIps', (_, ips: string[]) => {
     appStore.set('ips', ips)
-    addTray(...ips.map((ip, i) => ({
+    replaceTray(...ips.map((ip, i) => ({
       id: 'tcp' + (i + 1),
       type: 'radio',
       label: ip,

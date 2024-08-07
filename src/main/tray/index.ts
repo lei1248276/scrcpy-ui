@@ -89,7 +89,7 @@ function getIps() {
 }
 
 let timer: ReturnType<typeof setTimeout> | null = null
-export const addTray = (...item: typeof trayTemplate[number][]) => {
+export const replaceTray = (...item: typeof trayTemplate[number][]) => {
   if (!tray) return
 
   if (timer) clearTimeout(timer)
