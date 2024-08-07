@@ -38,6 +38,10 @@ function createWindow() {
   } else {
     win.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+  const onMessage = (data) => win.webContents.send('scrcpyMessage', data)
+  Scrcpy.event.on('message', onMessage)
+  win.on('close', () => Scrcpy.event.off('message', onMessage))
 }
 
 // This method will be called when Electron has finished

@@ -19,22 +19,26 @@ const Scrcpy = {
 
     this.scrcpy.stdout!.on('data', (output) => {
       console.log(`标准输出: ${output.toString()}`)
+      this.event.emit('message', { type: 'stdout', data: output.toString() })
     })
 
     this.scrcpy.stderr!.on('data', (errorOutput) => {
       console.error(`标准错误: ${errorOutput.toString()}`)
+      this.event.emit('message', { type: 'stderr', data: errorOutput.toString() })
     })
 
     this.scrcpy.on('close', (code) => {
       console.log(`子进程退出码: ${code}`)
       this.scrcpy = null
       this.event.emit('kill')
+      this.event.emit('message', { type: 'close', data: 'scrcpy 已关闭' })
     })
 
     this.scrcpy.on('error', (err) => {
       console.error(`子进程启动失败: ${err}`)
       this.scrcpy = null
       this.event.emit('kill')
+      this.event.emit('message', { type: 'error', data: 'scrcpy 启动失败' })
     })
   },
   stop() {
