@@ -1,5 +1,5 @@
 <template>
-  <div class="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#1e1e20]">
+  <div class="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#f6f6f7]">
     <Popover v-model:open="open">
       <PopoverTrigger as-child>
         <Button
@@ -7,6 +7,7 @@
           role="combobox"
           :aria-expanded="open"
           class="w-[200px] justify-between"
+          :class="ip ? '' : 'text-gray-500'"
         >
           {{ ip || "USB连接" }}
           <CaretSortIcon class="ml-2 size-4 shrink-0 opacity-50" />
@@ -47,10 +48,7 @@
     </Popover>
 
     <div class="flex items-center gap-x-2">
-      <Button
-        variant="secondary"
-        @click="onScrcpy(ip)"
-      >
+      <Button @click="onScrcpy(ip)">
         Scrcpy Start
       </Button>
 
@@ -72,25 +70,13 @@ const open = ref(false)
 const ips = reactive<string[]>([])
 const ip = ref('')
 
-onMounted(() => {
-  try {
-    const _ips = localStorage.getItem('ips')
-    console.log('%c🚀 ~ file: App.vue:102 ~ onMounted ~ _ips:', 'color:#a8c7fa', _ips)
-    if (!_ips) return
-
-    const parsedIps = JSON.parse(_ips) as string[]
-    parsedIps.some(v => typeof v !== 'string')
-      ? localStorage.removeItem('ips')
-      : ips.push(...JSON.parse(_ips))
-  } catch (err) {
-    console.error('🚀 ~ file: App.vue:107 ~ onMounted ~ err:', err)
-  }
+window.electron.ipcRenderer.invoke('getStoreIps').then(_ips => {
+  console.log('%c🚀 ~ file: App.vue:74 ~ onMounted ~ _ips:', 'color:#a8c7fa', _ips)
+  ips.push(..._ips)
 })
 
 const saveIps = () => {
-  const _ips = ips.filter(Boolean)
-  localStorage.setItem('ips', JSON.stringify(_ips))
-  window.electron.ipcRenderer.send('setStoreIps', _ips)
+  window.electron.ipcRenderer.send('setStoreIps', ips.filter(Boolean))
 }
 
 const onScrcpy = (ip: string) => {

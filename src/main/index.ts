@@ -66,6 +66,7 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 
+  ipcMain.handle('getStoreIps', () => appStore.get('ips'))
   ipcMain.on('setStoreIps', (_, ips: string[]) => {
     appStore.set('ips', ips)
     replaceTray(...ips.map((ip, i) => ({
