@@ -1,5 +1,5 @@
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
-import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+import { optimizer, is } from '@electron-toolkit/utils'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import fixPath from 'fix-path'
@@ -7,11 +7,9 @@ import Scrcpy from './scrcpy'
 import { createTray, addTray, updateTray } from './tray'
 import { appStore } from './store/appStore'
 
-let win: BrowserWindow
-
 function createWindow() {
   // Create the browser window.
-  win = new BrowserWindow({
+  const win = new BrowserWindow({
     width: 513,
     height: 800,
     show: false,
@@ -25,6 +23,8 @@ function createWindow() {
     console.log('🚀 ~ file: index.ts:21 ~ mainWindow.on ~ ready-to-show:')
     win.show()
   })
+
+  is.dev && win.webContents.openDevTools()
 
   win.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
@@ -44,9 +44,6 @@ function createWindow() {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  // Set app user model id for windows
-  electronApp.setAppUserModelId('com.scrcpyui.app')
-
   createTray()
 
   !appStore.get('hideWindow') && createWindow()
@@ -91,7 +88,7 @@ app.whenReady().then(() => {
       updateTray({ id: 'usb', label: 'USB', checked: true })
     }
     updateTray({ id: 'close', checked: false })
-    !win?.isDestroyed() && win?.close()
+    // !win?.isDestroyed() && win?.close()
 
     ipcMain.once('scrcpy-kill', () => {
       Scrcpy.stop()
@@ -108,14 +105,9 @@ app.whenReady().then(() => {
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
+  if (process.platform !== 'darwin') app.quit()
 })
 
 app.on('before-quit', () => {
   Scrcpy.stop()
 })
-
-// In this file you can include the rest of your app"s specific main process
-// code. You can also put them in separate files and require them here.
