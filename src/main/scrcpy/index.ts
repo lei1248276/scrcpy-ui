@@ -1,5 +1,6 @@
 import { spawn } from 'node:child_process'
 import EventEmitter from 'node:stream'
+import { Notification } from 'electron'
 
 export const defaultScrcpyOptions = [
   '--no-audio',
@@ -7,6 +8,23 @@ export const defaultScrcpyOptions = [
   '--turn-screen-off',
   '--power-off-on-close'
 ]
+
+const Noti = {
+  get error() {
+    // @ts-ignore - 懒加载赋值
+    return delete this.error && (this.error = new Notification({
+      title: 'Scrcpy 启动失败',
+      silent: true
+    }))
+  },
+  get close() {
+    // @ts-ignore - 懒加载赋值
+    return delete this.close && (this.close = new Notification({
+      title: 'Scrcpy 已退出',
+      silent: true
+    }))
+  }
+}
 
 const Scrcpy = {
   scrcpy: null as ReturnType<typeof spawn> | null,
@@ -25,6 +43,11 @@ const Scrcpy = {
     this.scrcpy.stderr!.on('data', (errorOutput) => {
       console.error(`标准错误: ${errorOutput.toString()}`)
       this.event.emit('message', { type: 'stderr', data: errorOutput.toString() })
+      new Notification({
+        title: 'Scrcpy 错误提示',
+        body: errorOutput.toString(),
+        silent: true
+      }).show()
     })
 
     this.scrcpy.on('close', (code) => {
@@ -32,6 +55,7 @@ const Scrcpy = {
       this.scrcpy = null
       this.event.emit('kill')
       this.event.emit('message', { type: 'close', data: 'scrcpy 已关闭' })
+      Noti.close.show()
     })
 
     this.scrcpy.on('error', (err) => {
@@ -39,6 +63,7 @@ const Scrcpy = {
       this.scrcpy = null
       this.event.emit('kill')
       this.event.emit('message', { type: 'error', data: 'scrcpy 启动失败' })
+      Noti.error.show()
     })
   },
   stop() {
