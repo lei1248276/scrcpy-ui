@@ -111,7 +111,7 @@ const saveIps = () => {
 const onScrcpy = (ip: string) => {
   console.log('%c🚀 ~ file: App.vue:92 ~ onScrcpy ~ ip:', 'color:#a8c7fa', ips, ip)
   if (ip && !ips.includes(ip)) {
-    ips.push(ip)
+    ips.unshift(ip)
     saveIps()
   }
   window.electron.ipcRenderer.send('scrcpy', ip)

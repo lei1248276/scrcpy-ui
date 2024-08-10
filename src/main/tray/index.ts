@@ -116,7 +116,7 @@ function showInputBox() {
     win.close()
 
     const _ips = appStore.get('ips')
-    !_ips.includes(_ip) && ipcMain.emit('setStoreIps', undefined, _ips.concat(_ip))
+    !_ips.includes(_ip) && ipcMain.emit('setStoreIps', undefined, [_ip].concat(_ips))
     ipcMain.emit('scrcpy', undefined, _ip)
   })
 }
