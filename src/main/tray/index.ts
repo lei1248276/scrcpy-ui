@@ -1,4 +1,4 @@
-import { app, Tray, Menu, nativeImage } from 'electron'
+import { app, Tray, Menu, nativeImage, BrowserWindow, ipcMain } from 'electron'
 import Scrcpy, { defaultScrcpyOptions } from '../scrcpy'
 import { appStore } from '../store/appStore'
 
@@ -62,6 +62,13 @@ const trayTemplate: Parameters<typeof Menu.buildFromTemplate>[0] = [
   },
   { type: 'separator' },
   {
+    id: 'add',
+    label: 'Add IP Address',
+    click: () => {
+      showInputBox()
+    }
+  },
+  {
     id: 'exit',
     label: 'Exit',
     click: () => {
@@ -70,6 +77,49 @@ const trayTemplate: Parameters<typeof Menu.buildFromTemplate>[0] = [
     }
   }
 ]
+
+function showInputBox() {
+  const win = new BrowserWindow({
+    width: 300,
+    height: 60,
+    alwaysOnTop: true,
+    frame: false,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false
+    }
+  })
+
+  win.loadURL(`data:text/html;charset=utf-8,
+    <html>
+      <body>
+        <input id="input" type="text" autofocus style="width: 100%; height: 100%; display: block; vertical-align: middle; font-size: 26px; padding: 10px; border: none; outline: none;" />
+
+        <script>
+          const { ipcRenderer } = require('electron');
+          const validIp = ${/^((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])(?::(?:[0-9]|[1-9][0-9]{1,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5]))?$/}
+
+          document.getElementById('input').addEventListener('keydown', ({ key, target }) => {
+            if (key === 'Enter') {
+              validIp.test(target.value)
+                ? ipcRenderer.send(target.value)
+                : target.select()
+            }
+          });
+        </script>
+      </body>
+    </html>`
+  )
+
+  win.webContents.once('ipc-message', (_, _ip) => {
+    console.log('输入的内容:', _ip)
+    win.close()
+
+    const _ips = appStore.get('ips')
+    !_ips.includes(_ip) && ipcMain.emit('setStoreIps', undefined, _ips.concat(_ip))
+    ipcMain.emit('scrcpy', undefined, _ip)
+  })
+}
 
 //* 从 appStore 缓存中获取 ips，创建对应的菜单项
 function getIps() {
