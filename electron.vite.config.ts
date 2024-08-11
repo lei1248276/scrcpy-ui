@@ -8,12 +8,21 @@ import Components from 'unplugin-vue-components/vite'
 
 export default defineConfig({
   main: {
+    build: {
+      minify: 'esbuild'
+    },
     plugins: [externalizeDepsPlugin({ exclude: ['fix-path', 'electron-store'] })]
   },
   preload: {
+    build: {
+      minify: 'esbuild'
+    },
     plugins: [externalizeDepsPlugin()]
   },
   renderer: {
+    build: {
+      minify: 'esbuild'
+    },
     css: {
       postcss: {
         plugins: [tailwind(), autoprefixer()]
