@@ -6,22 +6,24 @@ import autoprefixer from 'autoprefixer'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 
+const isProd = process.env.NODE_ENV === 'production'
+
 export default defineConfig({
   main: {
     build: {
-      minify: 'esbuild'
+      minify: isProd ? 'esbuild' : false
     },
     plugins: [externalizeDepsPlugin({ exclude: ['fix-path', 'electron-store'] })]
   },
   preload: {
     build: {
-      minify: 'esbuild'
+      minify: isProd ? 'esbuild' : false
     },
     plugins: [externalizeDepsPlugin()]
   },
   renderer: {
     build: {
-      minify: 'esbuild'
+      minify: isProd ? 'esbuild' : false
     },
     css: {
       postcss: {
