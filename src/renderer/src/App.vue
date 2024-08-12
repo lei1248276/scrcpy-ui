@@ -106,12 +106,12 @@
         <CarouselItem>
           <div
             ref="logRef"
-            class="mx-auto flex h-[50vh] w-4/5 flex-none flex-col gap-y-2 overflow-y-scroll break-words [&::-webkit-scrollbar]:hidden"
+            class="mx-auto flex h-[500px] w-4/5 flex-none flex-col gap-y-2 overflow-y-scroll break-words rounded-md border border-gray-300 bg-[#282828] p-2 [&::-webkit-scrollbar]:hidden"
           >
             <span
               v-for="({ type, data }, i) in messages"
               :key="i"
-              :class="type === 'stderr' ? 'text-orange-400' : type === 'error' || type === 'close' ? 'text-red-500' : ''"
+              :class="type === 'stderr' ? 'text-orange-400' : type === 'error' || type === 'close' ? 'text-red-500' : 'text-[#f6f6f7]'"
             >
               {{ data }}
             </span>
