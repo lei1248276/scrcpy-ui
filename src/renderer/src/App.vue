@@ -453,7 +453,7 @@ const column: ColumnProps[] = [
     prop: 'checked',
     width: 50,
     align: 'center',
-    filters: [{ text: 'true', value: true }, { text: 'false', value: false }],
+    filters: [{ text: '选中', value: true }, { text: '未选中', value: false }],
     filterMethod: (value, row) => row.checked === value
   },
   {
