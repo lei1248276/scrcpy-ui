@@ -31,14 +31,12 @@
               >
                 {{ v }}
                 <CheckIcon
-                  :class="cn(
-                    'ml-auto h-4 w-4',
-                    ip === v ? 'opacity-100' : 'opacity-0',
-                  )"
+                  class="ml-auto size-4"
+                  :class="ip === v ? 'opacity-100' : 'opacity-0'"
                 />
                 <Cross2Icon
                   class="ml-auto size-4 cursor-pointer"
-                  @click.stop="ips.splice(i, 1); saveIps(); ip === v && (ip = '')"
+                  @click.stop="ips.splice(i, 1); saveIps(ips); ip === v && (ip = '')"
                 />
               </CommandItem>
             </CommandGroup>
@@ -60,24 +58,82 @@
       </Button>
     </div>
 
-    <div
-      ref="logRef"
-      class="flex h-[50vh] w-2/3 flex-none flex-col gap-y-2 overflow-y-scroll break-words"
-    >
-      <span
-        v-for="({ type, data }, i) in messages"
-        :key="i"
-        :class="type === 'stderr' ? 'text-orange-400' : type === 'error' || type === 'close' ? 'text-red-500' : ''"
-      >
-        {{ data }}
-      </span>
-    </div>
+    <Carousel class="h-[500px] w-full">
+      <CarouselContent>
+        <CarouselItem>
+          <JTable
+            :data="tableData"
+            :column-props="column"
+            height="500px"
+            class="mx-auto w-[90%] rounded-md"
+          >
+            <template #checked="{ row }">
+              <Checkbox
+                v-model:checked="row.checked"
+                class="size-[18px] align-middle"
+              />
+            </template>
+
+            <template #value="{ row }">
+              <Select
+                v-if="row.valueList"
+                v-model="row.value"
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem
+                      v-for="v in row.valueList"
+                      :key="v"
+                      :value="v"
+                    >
+                      {{ v }}
+                    </SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+
+              <Input
+                v-else-if="typeof row.value === 'string'"
+                v-model="row.value"
+              />
+            </template>
+          </JTable>
+        </CarouselItem>
+
+        <CarouselItem>
+          <div
+            ref="logRef"
+            class="mx-auto flex h-[50vh] w-4/5 flex-none flex-col gap-y-2 overflow-y-scroll break-words [&::-webkit-scrollbar]:hidden"
+          >
+            <span
+              v-for="({ type, data }, i) in messages"
+              :key="i"
+              :class="type === 'stderr' ? 'text-orange-400' : type === 'error' || type === 'close' ? 'text-red-500' : ''"
+            >
+              {{ data }}
+            </span>
+          </div>
+        </CarouselItem>
+      </CarouselContent>
+    </Carousel>
   </div>
 </template>
 
 <script setup lang="ts">
+import type { ColumnProps } from '@renderer/components/JTable/JTable.vue'
 import { CaretSortIcon, CheckIcon, Cross2Icon } from '@radix-icons/vue'
-import { cn } from '@renderer/utils/lib/utils'
+
+type TableData = {
+  type: string
+  arg: string
+  value?: string
+  valueList?: string[]
+  desc: string
+  checked: boolean
+}
 
 type Message = {
   type: 'stdout' | 'stderr' | 'close' | 'error'
@@ -92,8 +148,20 @@ const messages = ref<Message[]>([])
 const logRef = shallowRef<HTMLDivElement | null>(null)
 
 window.electron.ipcRenderer.invoke('getStoreIps').then(_ips => {
-  console.log('%c🚀 ~ file: App.vue:74 ~ onMounted ~ _ips:', 'color:#a8c7fa', _ips)
+  console.log('%c🚀 ~ file: App.vue:74 ~ _ips:', 'color:#a8c7fa', _ips)
   ips.push(..._ips)
+})
+
+window.electron.ipcRenderer.invoke('getStoreScrcpyOptions').then((_scrcpyOptions: string[]) => {
+  console.log('%c🚀 ~ file: App.vue:80 ~ _scrcpyOptions:', 'color:#a8c7fa', _scrcpyOptions)
+  _scrcpyOptions.forEach(option => {
+    const [arg, value] = option.split('=')
+    const row = tableData.find(row => row.arg === arg)
+    if (row) {
+      value && (row.value = value)
+      row.checked = true
+    }
+  })
 })
 
 window.electron.ipcRenderer.on('scrcpyMessage', (_, data) => {
@@ -104,20 +172,315 @@ window.electron.ipcRenderer.on('scrcpyMessage', (_, data) => {
   })
 })
 
-const saveIps = () => {
-  window.electron.ipcRenderer.send('setStoreIps', ips.filter(Boolean))
+const saveIps = (_ips: string[]) => {
+  window.electron.ipcRenderer.send('setStoreIps', _ips.filter(Boolean))
+}
+const saveScrcpyOptions = (options: string[]) => {
+  window.electron.ipcRenderer.send('setStoreScrcpyOptions', options.filter(Boolean))
 }
 
 const onScrcpy = (ip: string) => {
   console.log('%c🚀 ~ file: App.vue:92 ~ onScrcpy ~ ip:', 'color:#a8c7fa', ips, ip)
+
   if (ip && !ips.includes(ip)) {
     ips.unshift(ip)
-    saveIps()
+    saveIps(ips)
   }
-  window.electron.ipcRenderer.send('scrcpy', ip)
+
+  const options = tableData.filter(row => row.checked).map(({ arg, value }) => arg + (value ? '=' + value : ''))
+  console.log('%c🚀 ~ file: App.vue:188 ~ onScrcpy ~ options:', 'color:#a8c7fa', options)
+  saveScrcpyOptions(options)
+  window.electron.ipcRenderer.send('scrcpy', ip, options)
 }
 
 const onScrcpyKill = () => {
   window.electron.ipcRenderer.send('scrcpy-kill')
 }
+
+const tableData: TableData[] = reactive([
+  {
+    type: 'Window',
+    arg: '--no-window',
+    desc: '禁用窗口',
+    checked: false
+  },
+  {
+    type: 'Window',
+    arg: '--window-title',
+    value: '',
+    desc: '窗口标题',
+    checked: false
+  },
+  {
+    type: 'Window',
+    arg: '--window-borderless',
+    desc: '窗口无边框',
+    checked: false
+  },
+  {
+    type: 'Window',
+    arg: '--always-on-top',
+    desc: '窗口置顶',
+    checked: false
+  },
+  {
+    type: 'Window',
+    arg: '--fullscreen',
+    desc: '窗口全屏',
+    checked: false
+  },
+  {
+    type: 'Window',
+    arg: '--window-width',
+    value: '',
+    desc: '窗口宽度',
+    checked: false
+  },
+  {
+    type: 'Window',
+    arg: '--window-height',
+    value: '',
+    desc: '窗口高度',
+    checked: false
+  },
+  {
+    type: 'Window',
+    arg: '--window-x',
+    value: '',
+    desc: '窗口位置X',
+    checked: false
+  },
+  {
+    type: 'Window',
+    arg: '--window-y',
+    value: '',
+    desc: '窗口位置Y',
+    checked: false
+  },
+  {
+    type: 'Window',
+    arg: '--disable-screensaver',
+    desc: '禁用"PC的"屏幕保护程序',
+    checked: false
+  },
+  {
+    type: 'Video',
+    arg: '--max-size',
+    value: '',
+    desc: '设备分辨率（默认为设备分辨率）',
+    checked: false
+  },
+  {
+    type: 'Video',
+    arg: '--video-bit-rate',
+    value: '8M',
+    desc: '视频比特率',
+    checked: false
+  },
+  {
+    type: 'Video',
+    arg: '--max-fps',
+    value: '',
+    desc: '帧率',
+    checked: false
+  },
+  {
+    type: 'Video',
+    arg: '--video-codec',
+    value: 'h264',
+    valueList: ['h264', 'h265', 'av1'],
+    desc: '视频编解码器',
+    checked: false
+  },
+  {
+    type: 'Video',
+    arg: '--display-buffer',
+    value: '',
+    desc: '视频缓冲（添加会增加延迟播放会流畅）',
+    checked: false
+  },
+  {
+    type: 'Video',
+    arg: '--no-video',
+    desc: '禁用视频',
+    checked: false
+  },
+  {
+    type: 'Audio',
+    arg: '--no-audio',
+    desc: '禁用音频',
+    checked: false
+  },
+  {
+    type: 'Audio',
+    arg: '--audio-source',
+    value: 'mic',
+    desc: '捕获麦克风',
+    checked: false
+  },
+  {
+    type: 'Audio',
+    arg: '--audio-codec',
+    value: 'opus',
+    valueList: ['opus', 'aac', 'flac', 'raw'],
+    desc: '音频编解码器',
+    checked: false
+  },
+  {
+    type: 'Audio',
+    arg: '--audio-encoder',
+    value: '',
+    desc: '编码器',
+    checked: false
+  },
+  {
+    type: 'Audio',
+    arg: '--audio-bit-rate',
+    value: '',
+    desc: '音频比特率',
+    checked: false
+  },
+  {
+    type: 'Audio',
+    arg: '--audio-buffer',
+    value: '50',
+    desc: '音频缓冲',
+    checked: false
+  },
+  {
+    type: 'Camera',
+    arg: '--video-source',
+    value: 'camera',
+    desc: '捕获摄像头而不是设备屏幕',
+    checked: false
+  },
+  {
+    type: 'Camera',
+    arg: '--camera-facing',
+    value: 'front',
+    valueList: ['front', 'back', 'external'],
+    desc: '选择摄像头',
+    checked: false
+  },
+  {
+    type: 'Camera',
+    arg: '--camera-size',
+    value: '1920x1080',
+    desc: '相机尺寸',
+    checked: false
+  },
+  {
+    type: 'Camera',
+    arg: '--orientation',
+    value: '90',
+    desc: '旋转',
+    checked: false
+  },
+  {
+    type: 'Camera',
+    arg: '--camera-fps',
+    value: '30',
+    desc: '相机帧率',
+    checked: false
+  },
+  {
+    type: 'Control',
+    arg: '--no-control',
+    desc: '禁用控制（输入、点击、拖放文件）',
+    checked: false
+  },
+  {
+    type: 'Control',
+    arg: '--no-video --no-audio',
+    desc: '仅控制',
+    checked: false
+  },
+  {
+    type: 'Device',
+    arg: '--stay-awake',
+    desc: '保持设备唤醒',
+    checked: false
+  },
+  {
+    type: 'Device',
+    arg: '--turn-screen-off',
+    desc: '启动时关闭屏幕',
+    checked: false
+  },
+  {
+    type: 'Device',
+    arg: '--show-touches',
+    desc: '显示触控点',
+    checked: false
+  },
+  {
+    type: 'Device',
+    arg: '--power-off-on-close',
+    desc: '关闭scrcpy时关闭设备屏幕',
+    checked: false
+  },
+  {
+    type: 'Keyboard',
+    arg: '--keyboard',
+    value: 'sdk',
+    valueList: ['sdk', 'uhid', 'aoa'],
+    desc: '键盘输入模式',
+    checked: false
+  },
+  {
+    type: 'Keyboard',
+    arg: '--no-key-repeat',
+    desc: '禁用按键重复',
+    checked: false
+  },
+  {
+    type: 'Mouse',
+    arg: '--mouse',
+    value: 'sdk',
+    valueList: ['sdk', 'uhid', 'aoa'],
+    desc: '鼠标输入模式',
+    checked: false
+  },
+  {
+    type: 'Mouse',
+    arg: '--no-mouse-hover',
+    desc: '禁止鼠标移动事件转发到设备',
+    checked: false
+  }
+])
+const column: ColumnProps[] = [
+  {
+    prop: 'checked',
+    width: 50,
+    align: 'center',
+    filters: [{ text: 'true', value: true }, { text: 'false', value: false }],
+    filterMethod: (value, row) => row.checked === value
+  },
+  {
+    prop: 'type',
+    label: 'type',
+    minWidth: 70,
+    align: 'center',
+    filters: tableData.reduce((acc, row) => {
+      row.type !== acc.at(-1)?.value && acc.push({ text: row.type, value: row.type })
+      return acc
+    }, [] as { text: string; value: string }[]),
+    filterMethod: (value, row) => row.type === value
+  },
+  {
+    prop: 'arg',
+    label: 'arg',
+    align: 'center'
+  },
+  {
+    prop: 'value',
+    label: 'value',
+    align: 'center'
+  },
+  {
+    prop: 'desc',
+    label: 'description',
+    align: 'center'
+  }
+]
 </script>

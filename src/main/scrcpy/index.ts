@@ -2,13 +2,6 @@ import { spawn } from 'node:child_process'
 import EventEmitter from 'node:stream'
 import { Notification } from 'electron'
 
-export const defaultScrcpyOptions = [
-  '--no-audio',
-  '--keyboard=uhid',
-  '--turn-screen-off',
-  '--power-off-on-close'
-]
-
 const Noti = {
   get error() {
     // @ts-ignore - 懒加载赋值
@@ -32,7 +25,7 @@ const Scrcpy = {
   start(options: string[] = []) {
     if (this.scrcpy) this.stop()
 
-    this.scrcpy = spawn('scrcpy', defaultScrcpyOptions.concat(options)) // 在这里可以添加任何 scrcpy 的选项
+    this.scrcpy = spawn('scrcpy', options) // 在这里可以添加任何 scrcpy 的选项
     console.log('🚀 ~ file: index.ts:57 ~ app.on ~ scrcpy:', 'scrcpy 已启动')
 
     this.scrcpy.stdout!.on('data', (output) => {

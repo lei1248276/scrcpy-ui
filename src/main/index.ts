@@ -10,7 +10,7 @@ import { appStore } from './store/appStore'
 function createWindow() {
   // Create the browser window.
   const win = new BrowserWindow({
-    width: 513,
+    width: 550,
     height: 800,
     show: false,
     webPreferences: {
@@ -79,17 +79,21 @@ app.whenReady().then(() => {
       label: ip,
       checked: false,
       click: () => {
-        Scrcpy.start(['--tcpip=' + ip])
+        Scrcpy.start(['--tcpip=' + ip, ...appStore.get('scrcpyOptions')])
       }
     } as const)))
   })
+  ipcMain.handle('getStoreScrcpyOptions', () => appStore.get('scrcpyOptions'))
+  ipcMain.on('setStoreScrcpyOptions', (_, options: string[]) => {
+    appStore.set('scrcpyOptions', options)
+  })
 
-  ipcMain.on('scrcpy', (_, ip: string) => {
+  ipcMain.on('scrcpy', (_, ip: string, options: string[]) => {
     if (ip) {
-      Scrcpy.start(['--tcpip=' + ip])
+      Scrcpy.start(['--tcpip=' + ip, ...options])
       updateTray({ label: ip, checked: true })
     } else {
-      Scrcpy.start(['--select-usb'])
+      Scrcpy.start(['--select-usb', ...options])
       updateTray({ id: 'usb', label: 'USB', checked: true })
     }
     updateTray({ id: 'close', checked: false })

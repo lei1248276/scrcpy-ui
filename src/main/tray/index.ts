@@ -13,7 +13,7 @@ const trayTemplate: Parameters<typeof Menu.buildFromTemplate>[0] = [
     type: 'radio',
     label: 'USB',
     click: () => {
-      Scrcpy.start(['--select-usb'])
+      Scrcpy.start(['--select-usb', ...appStore.get('scrcpyOptions')])
     }
   },
   {
@@ -117,7 +117,7 @@ function getIps() {
         type: 'radio',
         label: ip,
         click: () => {
-          Scrcpy.start(['--tcpip=' + ip])
+          Scrcpy.start(['--tcpip=' + ip, ...appStore.get('scrcpyOptions')])
         }
       }
       return obj

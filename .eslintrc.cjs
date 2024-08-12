@@ -21,6 +21,9 @@ module.exports = {
     'plugin:tailwindcss/recommended',
     './.eslintrc-auto-import.json'
   ],
+  globals: {
+    Electron: 'readonly'
+  },
 
   // add your custom rules here
   // it is base on https://github.com/vuejs/eslint-config-vue
