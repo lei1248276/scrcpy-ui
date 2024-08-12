@@ -1,6 +1,6 @@
 import { app, Tray, Menu, nativeImage, BrowserWindow, ipcMain } from 'electron'
 import { fileURLToPath } from 'node:url'
-import Scrcpy, { defaultScrcpyOptions } from '../scrcpy'
+import Scrcpy from '../scrcpy'
 import { appStore } from '../store/appStore'
 
 import icon_22x22 from '../../../resources/icon_22x22.png?asset'
@@ -26,20 +26,6 @@ const trayTemplate: Parameters<typeof Menu.buildFromTemplate>[0] = [
     }
   },
   { type: 'separator' },
-  {
-    id: 'alwaysTop',
-    label: 'Always on Top',
-    type: 'checkbox',
-    checked: appStore.get('alwaysTop')
-      ? (defaultScrcpyOptions.push('--always-on-top'), true)
-      : false,
-    click: (menuItem) => {
-      appStore.set('alwaysTop', menuItem.checked)
-      menuItem.checked
-        ? defaultScrcpyOptions.splice(defaultScrcpyOptions.indexOf('--always-on-top'), 1)
-        : defaultScrcpyOptions.push('--always-on-top')
-    }
-  },
   {
     id: 'hideDock',
     label: 'Hide Dock',
