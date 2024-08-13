@@ -30,9 +30,11 @@ const trayTemplate: Parameters<typeof Menu.buildFromTemplate>[0] = [
     id: 'hideDock',
     label: 'Hide Dock',
     type: 'checkbox',
-    checked: appStore.get('hideDock')
-      ? (app.dock.hide(), true)
-      : false,
+    get checked() {
+      return appStore.get('hideDock')
+        ? (app.dock.isVisible() && app.dock.hide(), true)
+        : false
+    },
     click: (menuItem) => {
       appStore.set('hideDock', menuItem.checked)
       menuItem.checked ? app.dock.hide() : app.dock.show()
@@ -42,7 +44,9 @@ const trayTemplate: Parameters<typeof Menu.buildFromTemplate>[0] = [
     id: 'hideWindow',
     label: 'Hide Window',
     type: 'checkbox',
-    checked: appStore.get('hideWindow'),
+    get checked() {
+      return appStore.get('hideWindow')
+    },
     click: (menuItem) => {
       appStore.set('hideWindow', menuItem.checked)
     }
