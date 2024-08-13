@@ -1,5 +1,5 @@
 import { resolve } from 'path'
-import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
+import { defineConfig } from 'electron-vite'
 import vue from '@vitejs/plugin-vue'
 import tailwind from 'tailwindcss'
 import autoprefixer from 'autoprefixer'
@@ -13,19 +13,36 @@ const isProd = process.env.NODE_ENV === 'production'
 export default defineConfig({
   main: {
     build: {
-      minify: isProd ? 'esbuild' : false
-    },
-    plugins: [externalizeDepsPlugin({ exclude: ['fix-path', 'electron-store'] })]
+      minify: isProd ? 'esbuild' : false,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'fix-path': ['fix-path'],
+            'electron-store': ['electron-store']
+          }
+        }
+      }
+    }
   },
   preload: {
     build: {
       minify: isProd ? 'esbuild' : false
-    },
-    plugins: [externalizeDepsPlugin()]
+    }
   },
   renderer: {
     build: {
-      minify: isProd ? 'esbuild' : false
+      minify: isProd ? 'esbuild' : false,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vue-vendor': ['vue'],
+            'element-plus': ['element-plus'],
+            'embla-carousel': ['embla-carousel-vue'],
+            'lucide': ['lucide-vue-next'],
+            'radix': ['radix-vue']
+          }
+        }
+      }
     },
     css: {
       postcss: {
@@ -63,7 +80,7 @@ export default defineConfig({
         dts: true,
         resolvers: [ElementPlusResolver()]
       }),
-      ElementPlus()
+      ElementPlus({})
     ]
   }
 })
