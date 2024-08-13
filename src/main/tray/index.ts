@@ -26,20 +26,22 @@ const trayTemplate: Parameters<typeof Menu.buildFromTemplate>[0] = [
     }
   },
   { type: 'separator' },
-  {
-    id: 'hideDock',
-    label: 'Hide Dock',
-    type: 'checkbox',
-    get checked() {
-      return appStore.get('hideDock')
-        ? (app.dock.isVisible() && app.dock.hide(), true)
-        : false
-    },
-    click: (menuItem) => {
-      appStore.set('hideDock', menuItem.checked)
-      menuItem.checked ? app.dock.hide() : app.dock.show()
-    }
-  },
+  ...(process.platform === 'darwin'
+    ? [{
+      id: 'hideDock',
+      label: 'Hide Dock',
+      type: 'checkbox',
+      get checked() {
+        return appStore.get('hideDock')
+          ? (app.dock.isVisible() && app.dock.hide(), true)
+          : false
+      },
+      click: (menuItem) => {
+        appStore.set('hideDock', menuItem.checked)
+        menuItem.checked ? app.dock.hide() : app.dock.show()
+      }
+    }] as Parameters<typeof Menu.buildFromTemplate>[0]
+    : [] as any),
   {
     id: 'hideWindow',
     label: 'Hide Window',
