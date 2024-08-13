@@ -150,6 +150,7 @@ const logRef = shallowRef<HTMLDivElement | null>(null)
 window.electron.ipcRenderer.invoke('getStoreIps').then(_ips => {
   console.log('%c🚀 ~ file: App.vue:74 ~ _ips:', 'color:#a8c7fa', _ips)
   ips.push(..._ips)
+  _ips.length && (ip.value = _ips[0])
 })
 
 window.electron.ipcRenderer.invoke('getStoreScrcpyOptions').then((_scrcpyOptions: string[]) => {
@@ -453,7 +454,7 @@ const column: ColumnProps[] = [
     prop: 'checked',
     width: 50,
     align: 'center',
-    filters: [{ text: '选中', value: true }, { text: '未选中', value: false }],
+    filters: [{ text: 'checked', value: true }, { text: 'unchecked', value: false }],
     filterMethod: (value, row) => row.checked === value
   },
   {
