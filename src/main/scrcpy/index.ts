@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process'
 import EventEmitter from 'node:stream'
-import { Notification } from 'electron'
+import { ipcMain, Notification } from 'electron'
 
 const Noti = {
   get error() {
@@ -27,6 +27,7 @@ const Scrcpy = {
 
     this.scrcpy = spawn('scrcpy', options) // 在这里可以添加任何 scrcpy 的选项
     console.log('🚀 ~ file: index.ts:57 ~ app.on ~ scrcpy:', 'scrcpy 已启动')
+    ipcMain.handle('scrcpy-start', () => !!this.scrcpy)
 
     this.scrcpy.stdout!.on('data', (output) => {
       console.log(`标准输出: ${output.toString()}`)
@@ -64,6 +65,7 @@ const Scrcpy = {
       this.scrcpy.kill()
       this.scrcpy = null
       this.event.emit('kill')
+      ipcMain.removeHandler('scrcpy-start')
     }
   }
 }

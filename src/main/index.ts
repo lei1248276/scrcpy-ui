@@ -98,10 +98,9 @@ app.whenReady().then(() => {
     }
     updateTray({ id: 'close', checked: false })
     // !win?.isDestroyed() && win?.close()
-
-    ipcMain.once('scrcpy-kill', () => {
-      Scrcpy.stop()
-    })
+  })
+  ipcMain.on('scrcpy-kill', () => {
+    Scrcpy.stop()
   })
 
   Scrcpy.event.on('kill', () => {

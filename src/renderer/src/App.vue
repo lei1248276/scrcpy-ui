@@ -46,15 +46,12 @@
     </Popover>
 
     <div class="flex items-center gap-x-2">
-      <Button @click="onScrcpy(ip)">
-        Scrcpy Start
-      </Button>
-
       <Button
-        variant="destructive"
-        @click="onScrcpyKill"
+        :variant="isStartScrcpy ? 'destructive' : 'default'"
+        class="transition-colors duration-300"
+        @click="isStartScrcpy ? onScrcpyKill() : onScrcpy(ip)"
       >
-        Scrcpy Kill
+        {{ isStartScrcpy ? 'Scrcpy Kill' : 'Scrcpy Start' }}
       </Button>
     </div>
 
@@ -140,6 +137,7 @@ type Message = {
   data: string
 }
 
+const isStartScrcpy = ref(false)
 const open = ref(false)
 const ips = reactive<string[]>([])
 const ip = ref('')
@@ -165,8 +163,11 @@ window.electron.ipcRenderer.invoke('getStoreScrcpyOptions').then((_scrcpyOptions
   })
 })
 
-window.electron.ipcRenderer.on('scrcpyMessage', (_, data) => {
+window.electron.ipcRenderer.invoke('scrcpy-start').then((isStart: boolean) => { isStartScrcpy.value = isStart }).catch(() => {})
+window.electron.ipcRenderer.on('scrcpyMessage', (_, data: Message) => {
   console.log('%c🚀 ~ file: App.vue:82 ~ window.electron.ipcRenderer.on ~ data:', 'color:#a8c7fa', data)
+  if (data.type === 'stdout' && !isStartScrcpy.value) isStartScrcpy.value = true
+  else if (data.type === 'close' || data.type === 'error') isStartScrcpy.value = false
   messages.value.push(data)
   nextTick(() => {
     logRef.value?.scrollTo(0, logRef.value.scrollHeight)
