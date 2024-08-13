@@ -70,4 +70,20 @@ const Scrcpy = {
   }
 }
 
+ipcMain.on('scrcpy', (_, ip: string, options: string[]) => {
+  if (ip) {
+    Scrcpy.start(['--tcpip=' + ip, ...options])
+    updateTray({ label: ip, checked: true })
+  } else {
+    Scrcpy.start(['--select-usb', ...options])
+    updateTray({ id: 'usb', label: 'USB', checked: true })
+  }
+  updateTray({ id: 'close', checked: false })
+  // !win?.isDestroyed() && win?.close()
+})
+
+ipcMain.on('scrcpy-kill', () => {
+  Scrcpy.stop()
+})
+
 export default Scrcpy

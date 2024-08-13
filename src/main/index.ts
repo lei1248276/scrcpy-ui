@@ -1,10 +1,10 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow } from 'electron'
 import { optimizer, is } from '@electron-toolkit/utils'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import fixPath from 'fix-path'
 import Scrcpy from './scrcpy'
-import { createTray, replaceTray, updateTray } from './tray'
+import { createTray } from './tray'
 import { appStore } from './store/appStore'
 
 function createWindow() {
@@ -68,39 +68,6 @@ app.whenReady().then(() => {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
-  })
-
-  ipcMain.handle('getStoreIps', () => appStore.get('ips'))
-  ipcMain.on('setStoreIps', (_, ips: string[]) => {
-    appStore.set('ips', ips)
-    replaceTray(...ips.map((ip, i) => ({
-      id: 'tcp' + (i + 1),
-      type: 'radio',
-      label: ip,
-      checked: false,
-      click: () => {
-        Scrcpy.start(['--tcpip=' + ip, ...appStore.get('scrcpyOptions')])
-      }
-    } as const)))
-  })
-  ipcMain.handle('getStoreScrcpyOptions', () => appStore.get('scrcpyOptions'))
-  ipcMain.on('setStoreScrcpyOptions', (_, options: string[]) => {
-    appStore.set('scrcpyOptions', options)
-  })
-
-  ipcMain.on('scrcpy', (_, ip: string, options: string[]) => {
-    if (ip) {
-      Scrcpy.start(['--tcpip=' + ip, ...options])
-      updateTray({ label: ip, checked: true })
-    } else {
-      Scrcpy.start(['--select-usb', ...options])
-      updateTray({ id: 'usb', label: 'USB', checked: true })
-    }
-    updateTray({ id: 'close', checked: false })
-    // !win?.isDestroyed() && win?.close()
-  })
-  ipcMain.on('scrcpy-kill', () => {
-    Scrcpy.stop()
   })
 })
 
