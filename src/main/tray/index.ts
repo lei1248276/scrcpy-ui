@@ -103,12 +103,15 @@ function showInputBox() {
     </html>`
   )
 
-  win.webContents.once('ipc-message', (_, _ip) => {
+  win.webContents.once('ipc-message', (_, _ip: string) => {
     console.log('输入的内容:', _ip)
     win.close()
 
     const _ips = appStore.get('ips')
-    !_ips.includes(_ip) && ipcMain.emit('setStoreIps', undefined, [_ip].concat(_ips))
+    if (!_ips.includes(_ip)) {
+      _ips.unshift(_ip)
+      ipcMain.emit('setStoreIps', undefined, _ips)
+    }
     ipcMain.emit('scrcpy', undefined, _ip)
   })
 }

@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process'
 import EventEmitter from 'node:stream'
 import { ipcMain, Notification } from 'electron'
 import { updateTray } from '../tray'
+import { appStore } from '../store/appStore'
 
 const Noti = {
   get error() {
@@ -70,7 +71,7 @@ const Scrcpy = {
   }
 }
 
-ipcMain.on('scrcpy', (_, ip: string, options: string[]) => {
+ipcMain.on('scrcpy', (_, ip: string, options: string[] = appStore.get('scrcpyOptions')) => {
   if (ip) {
     Scrcpy.start(['--tcpip=' + ip, ...options])
     updateTray({ label: ip, checked: true })
