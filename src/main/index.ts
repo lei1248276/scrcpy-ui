@@ -102,11 +102,6 @@ app.whenReady().then(() => {
   ipcMain.on('scrcpy-kill', () => {
     Scrcpy.stop()
   })
-
-  Scrcpy.event.on('kill', () => {
-    console.log('🚀 ~ file: index.ts:101 ~ Scrcpy.event.on ~ kill:')
-    updateTray({ id: 'close', checked: true })
-  })
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common

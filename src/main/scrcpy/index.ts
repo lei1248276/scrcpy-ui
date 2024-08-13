@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process'
 import EventEmitter from 'node:stream'
 import { ipcMain, Notification } from 'electron'
+import { updateTray } from '../tray'
 
 const Noti = {
   get error() {
@@ -46,16 +47,14 @@ const Scrcpy = {
 
     this.scrcpy.on('close', (code) => {
       console.log(`子进程退出码: ${code}`)
-      this.scrcpy = null
-      this.event.emit('kill')
+      this.stop()
       this.event.emit('message', { type: 'close', data: 'scrcpy 已关闭' })
       Noti.close.show()
     })
 
     this.scrcpy.on('error', (err) => {
       console.error(`子进程启动失败: ${err}`)
-      this.scrcpy = null
-      this.event.emit('kill')
+      this.stop()
       this.event.emit('message', { type: 'error', data: 'scrcpy 启动失败' })
       Noti.error.show()
     })
@@ -63,8 +62,9 @@ const Scrcpy = {
   stop() {
     if (this.scrcpy) {
       this.scrcpy.kill()
-      this.scrcpy = null
       this.event.emit('kill')
+      this.scrcpy = null
+      updateTray({ id: 'close', checked: true })
       ipcMain.removeHandler('scrcpy-start')
     }
   }
