@@ -48,14 +48,14 @@ const Scrcpy = {
 
     this.scrcpy.on('close', (code) => {
       console.log(`子进程退出码: ${code}`)
-      this.stop()
+      this.close()
       this.event.emit('message', { type: 'close', data: 'scrcpy 已关闭' })
       Noti.close.show()
     })
 
     this.scrcpy.on('error', (err) => {
       console.error(`子进程启动失败: ${err}`)
-      this.stop()
+      this.close()
       this.event.emit('message', { type: 'error', data: 'scrcpy 启动失败' })
       Noti.error.show()
     })
@@ -63,11 +63,14 @@ const Scrcpy = {
   stop() {
     if (this.scrcpy) {
       this.scrcpy.kill()
-      this.event.emit('kill')
       this.scrcpy = null
-      updateTray({ id: 'close', checked: true })
-      ipcMain.removeHandler('scrcpy-start')
     }
+  },
+  close() {
+    this.scrcpy = null
+    this.event.emit('kill')
+    updateTray({ id: 'close', checked: true })
+    ipcMain.removeHandler('scrcpy-start')
   }
 }
 
