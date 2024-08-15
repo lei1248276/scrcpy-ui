@@ -163,7 +163,7 @@ window.electron.ipcRenderer.invoke('getStoreScrcpyOptions').then((_scrcpyOptions
   })
 })
 
-window.electron.ipcRenderer.invoke('scrcpy-start').then((isStart: boolean) => { isStartScrcpy.value = isStart }).catch(() => {})
+window.electron.ipcRenderer.invoke('getStoreIsStartScrcpy').then((isStart: boolean) => { isStartScrcpy.value = isStart })
 window.electron.ipcRenderer.on('scrcpyMessage', (_, data: Message) => {
   console.log('%c🚀 ~ file: App.vue:82 ~ window.electron.ipcRenderer.on ~ data:', 'color:#a8c7fa', data)
   if (data.type === 'stdout' && !isStartScrcpy.value) isStartScrcpy.value = true

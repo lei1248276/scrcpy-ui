@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow } from 'electron'
+import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { optimizer, is } from '@electron-toolkit/utils'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -40,11 +40,12 @@ export function createWindow() {
   }
 
   const onMessage = (data) => win.webContents.send('scrcpyMessage', data)
-  Scrcpy.event.on('message', onMessage)
+  ipcMain.on('scrcpyMessage', onMessage)
 
   win.on('close', () => {
     console.log('🚀 ~ file: index.ts:51 ~ win.on ~ close:')
-    Scrcpy.event.off('message', onMessage)
+    ipcMain.off('scrcpyMessage', onMessage)
+
     if (!appStore.get('hideWindow')) {
       appStore.set('hideWindow', true)
       updateTray({ id: 'close', checked: true })

@@ -8,9 +8,12 @@ export const appStore = new Store({
     ips: [] as string[],
     scrcpyOptions: [] as string[],
     hideDock: false,
-    hideWindow: false
+    hideWindow: false,
+    isStartScrcpy: false
   }
 })
+
+ipcMain.handle('getStoreIsStartScrcpy', () => appStore.get('isStartScrcpy'))
 
 ipcMain.handle('getStoreIps', () => appStore.get('ips'))
 ipcMain.on('setStoreIps', (_, ips: string[]) => {
