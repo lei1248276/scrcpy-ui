@@ -2,6 +2,7 @@ import { app, Tray, Menu, nativeImage, BrowserWindow, ipcMain } from 'electron'
 import { fileURLToPath } from 'node:url'
 import Scrcpy from '../scrcpy'
 import { appStore } from '../store/appStore'
+import { createWindow } from '..'
 
 import icon_22x22 from '../../../resources/icon_22x22.png?asset'
 
@@ -51,6 +52,7 @@ const trayTemplate: Parameters<typeof Menu.buildFromTemplate>[0] = [
     },
     click: (menuItem) => {
       appStore.set('hideWindow', menuItem.checked)
+      menuItem.checked ? BrowserWindow.getAllWindows().forEach(win => win.close()) : createWindow()
     }
   },
   { type: 'separator' },

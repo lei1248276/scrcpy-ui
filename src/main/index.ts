@@ -4,10 +4,10 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import fixPath from 'fix-path'
 import Scrcpy from './scrcpy'
-import { createTray } from './tray'
+import { createTray, updateTray } from './tray'
 import { appStore } from './store/appStore'
 
-function createWindow() {
+export function createWindow() {
   // Create the browser window.
   const win = new BrowserWindow({
     width: 550,
@@ -22,9 +22,9 @@ function createWindow() {
   win.on('ready-to-show', () => {
     console.log('🚀 ~ file: index.ts:21 ~ mainWindow.on ~ ready-to-show:')
     win.show()
+    is.dev && win.webContents.openDevTools()
+    appStore.get('hideWindow') && appStore.set('hideWindow', false)
   })
-
-  is.dev && win.webContents.openDevTools()
 
   win.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
@@ -41,7 +41,15 @@ function createWindow() {
 
   const onMessage = (data) => win.webContents.send('scrcpyMessage', data)
   Scrcpy.event.on('message', onMessage)
-  win.on('close', () => Scrcpy.event.off('message', onMessage))
+
+  win.on('close', () => {
+    console.log('🚀 ~ file: index.ts:51 ~ win.on ~ close:')
+    Scrcpy.event.off('message', onMessage)
+    if (!appStore.get('hideWindow')) {
+      appStore.set('hideWindow', true)
+      updateTray({ id: 'close', checked: true })
+    }
+  })
 }
 
 // This method will be called when Electron has finished
