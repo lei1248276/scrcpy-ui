@@ -42,6 +42,16 @@ const trayTemplate: Parameters<typeof Menu.buildFromTemplate>[0] = [
         appStore.set('hideDock', menuItem.checked)
         menuItem.checked ? app.dock.hide() : app.dock.show()
       }
+    }, {
+      id: 'closeNotification',
+      label: 'Close Notification',
+      type: 'checkbox',
+      get checked() {
+        return appStore.get('closeNotification')
+      },
+      click: (menuItem) => {
+        appStore.set('closeNotification', menuItem.checked)
+      }
     }] as Parameters<typeof Menu.buildFromTemplate>[0]
     : [] as any),
   {

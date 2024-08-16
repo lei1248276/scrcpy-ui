@@ -20,6 +20,8 @@ const Noti = {
     }))
   }
 }
+let isNoti = !appStore.get('closeNotification') && platform.isMacOS
+platform.isMacOS && appStore.onDidChange('closeNotification', (v) => { isNoti = !v })
 
 let scrcpyPath = 'scrcpy'
 // @ts-ignore - .
@@ -44,7 +46,7 @@ const Scrcpy = {
     this.scrcpy.stderr!.on('data', (errorOutput) => {
       console.error(`标准错误: ${errorOutput.toString()}`)
       ipcMain.emit('scrcpyMessage', { type: 'stderr', data: errorOutput.toString() })
-      new Notification({
+      isNoti && new Notification({
         title: 'Scrcpy 错误提示',
         body: errorOutput.toString(),
         silent: true
@@ -55,14 +57,14 @@ const Scrcpy = {
       console.log(`子进程退出码: ${code}`)
       this.close()
       ipcMain.emit('scrcpyMessage', { type: 'close', data: 'scrcpy 已关闭' })
-      Noti.close.show()
+      isNoti && Noti.close.show()
     })
 
     this.scrcpy.on('error', (err) => {
       console.error(`子进程启动失败: ${err}`)
       this.close()
       ipcMain.emit('scrcpyMessage', { type: 'error', data: 'scrcpy 启动失败' })
-      Noti.error.show()
+      isNoti && Noti.error.show()
     })
   },
   stop() {

@@ -9,6 +9,7 @@ export const appStore = new Store({
     scrcpyOptions: [] as string[],
     hideDock: false,
     hideWindow: false,
+    closeNotification: false,
     isStartScrcpy: false
   }
 })
