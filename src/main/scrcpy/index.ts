@@ -2,6 +2,8 @@ import { spawn } from 'node:child_process'
 import { ipcMain, Notification } from 'electron'
 import { updateTray } from '../tray'
 import { appStore } from '../store/appStore'
+import { join } from 'node:path'
+import { platform } from '@electron-toolkit/utils'
 
 const Noti = {
   get error() {
@@ -20,12 +22,14 @@ const Noti = {
   }
 }
 
+const scrcpyPath = platform.isWindows ? join(import.meta.dirname, '../../../resources/scrcpy-win64-v2.6.1/scrcpy.exe').replace('app.asar', 'app.asar.unpacked') : 'scrcpy'
+
 const Scrcpy = {
   scrcpy: null as ReturnType<typeof spawn> | null,
   start(options: string[] = []) {
     if (this.scrcpy) this.stop()
 
-    this.scrcpy = spawn('scrcpy', options) // 在这里可以添加任何 scrcpy 的选项
+    this.scrcpy = spawn(scrcpyPath, options) // 在这里可以添加任何 scrcpy 的选项
     appStore.set('isStartScrcpy', true)
     console.log('🚀 ~ file: index.ts:57 ~ app.on ~ scrcpy:', 'scrcpy 已启动')
 

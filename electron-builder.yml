@@ -9,15 +9,26 @@ files:
   - '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
   - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+  - '!resources/scrcpy-win64-v2.6.1'
 asarUnpack:
   - resources/**
 win:
   executableName: ScrcpyUI
+  target:
+    - nsis
+  extraFiles:
+    - from: 'resources/scrcpy-win64-v2.6.1'
+      to: 'resources/app.asar.unpacked/resources/scrcpy-win64-v2.6.1'
+      filter:
+        - '**/*'
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
-  createDesktopShortcut: always
+  createDesktopShortcut: true
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  allowElevation: false
 mac:
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:

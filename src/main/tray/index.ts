@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url'
 import Scrcpy from '../scrcpy'
 import { appStore } from '../store/appStore'
 import { createWindow } from '..'
+import { platform } from '@electron-toolkit/utils'
 
 import icon_22x22 from '../../../resources/icon_22x22.png?asset'
 
@@ -27,7 +28,7 @@ const trayTemplate: Parameters<typeof Menu.buildFromTemplate>[0] = [
     }
   },
   { type: 'separator' },
-  ...(process.platform === 'darwin'
+  ...(platform.isMacOS
     ? [{
       id: 'hideDock',
       label: 'Hide Dock',
@@ -164,7 +165,13 @@ export const createTray = () => {
   tray = new Tray(nativeImage.createFromPath(icon_22x22))
   const contextMenu = Menu.buildFromTemplate(getIps().concat(trayTemplate))
   tray.setContextMenu(contextMenu)
-  tray.popUpContextMenu(contextMenu)
+
+  if (platform.isWindows) {
+    tray.setToolTip('Scrcpy UI')
+    tray.on('click', () => {
+      !BrowserWindow.getAllWindows().length && createWindow()
+    })
+  }
 
   return tray
 }

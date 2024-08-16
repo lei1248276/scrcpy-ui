@@ -7,12 +7,16 @@ import Scrcpy from './scrcpy'
 import { createTray, updateTray } from './tray'
 import { appStore } from './store/appStore'
 
+import icon_256x256 from '../../resources/icon_256x256.png?asset'
+
 export function createWindow() {
   // Create the browser window.
   const win = new BrowserWindow({
     width: 550,
     height: 800,
     show: false,
+    icon: icon_256x256,
+    autoHideMenuBar: true,
     webPreferences: {
       preload: fileURLToPath(new URL('../preload/index.mjs', import.meta.url)),
       sandbox: false
@@ -83,8 +87,8 @@ app.whenReady().then(() => {
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit()
+app.on('window-all-closed', (e) => {
+  if (process.platform !== 'darwin') e.preventDefault()
 })
 
 app.on('before-quit', () => {
