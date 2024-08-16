@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import fixPath from 'fix-path'
 import Scrcpy from './scrcpy'
-import { createTray, updateTray } from './tray'
+import { createTray } from './tray'
 import { appStore } from './store/appStore'
 
 import icon_256x256 from '../../resources/icon_256x256.png?asset'
@@ -27,7 +27,6 @@ export function createWindow() {
     console.log('🚀 ~ file: index.ts:21 ~ mainWindow.on ~ ready-to-show:')
     win.show()
     is.dev && win.webContents.openDevTools()
-    appStore.get('hideWindow') && appStore.set('hideWindow', false)
   })
 
   win.webContents.setWindowOpenHandler((details) => {
@@ -45,15 +44,9 @@ export function createWindow() {
 
   const onMessage = (data) => win.webContents.send('scrcpyMessage', data)
   ipcMain.on('scrcpyMessage', onMessage)
-
   win.on('close', () => {
     console.log('🚀 ~ file: index.ts:51 ~ win.on ~ close:')
     ipcMain.off('scrcpyMessage', onMessage)
-
-    if (!appStore.get('hideWindow')) {
-      appStore.set('hideWindow', true)
-      updateTray({ id: 'close', checked: true })
-    }
   })
 }
 
