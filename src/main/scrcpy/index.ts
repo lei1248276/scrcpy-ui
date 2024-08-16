@@ -2,7 +2,6 @@ import { spawn } from 'node:child_process'
 import { ipcMain, Notification } from 'electron'
 import { updateTray } from '../tray'
 import { appStore } from '../store/appStore'
-import { join } from 'node:path'
 import { platform } from '@electron-toolkit/utils'
 
 const Noti = {
@@ -22,7 +21,11 @@ const Noti = {
   }
 }
 
-const scrcpyPath = platform.isWindows ? join(import.meta.dirname, '../../../resources/scrcpy-win64-v2.6.1/scrcpy.exe').replace('app.asar', 'app.asar.unpacked') : 'scrcpy'
+let scrcpyPath = 'scrcpy'
+// @ts-ignore - .
+platform.isWindows && import('../../../resources/scrcpy-win64-v2.6.1/scrcpy.exe?asset&asarUnpack').then(res => {
+  scrcpyPath = res.default
+})
 
 const Scrcpy = {
   scrcpy: null as ReturnType<typeof spawn> | null,
