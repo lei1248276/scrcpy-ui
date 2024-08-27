@@ -2,6 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { optimizer, is } from '@electron-toolkit/utils'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { exec } from 'node:child_process'
 import fixPath from 'fix-path'
 import Scrcpy from './scrcpy'
 import { createTray } from './tray'
@@ -86,4 +87,5 @@ app.on('window-all-closed', (e) => {
 
 app.on('before-quit', () => {
   Scrcpy.stop()
+  setTimeout(() => exec('adb kill-server'))
 })
