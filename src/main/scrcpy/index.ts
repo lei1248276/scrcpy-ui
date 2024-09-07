@@ -3,23 +3,22 @@ import { ipcMain, Notification } from 'electron'
 import { updateTray } from '../tray'
 import { appStore } from '../store/appStore'
 import { platform } from '@electron-toolkit/utils'
+import useLazyData from 'use-lazy-data'
 
-const Noti = {
-  get error() {
-    // @ts-ignore - 懒加载赋值
-    return delete this.error && (this.error = new Notification({
+const Noti = useLazyData({
+  error() {
+    return new Notification({
       title: 'Scrcpy 启动失败',
       silent: true
-    }))
+    })
   },
-  get close() {
-    // @ts-ignore - 懒加载赋值
-    return delete this.close && (this.close = new Notification({
+  close() {
+    return new Notification({
       title: 'Scrcpy 已退出',
       silent: true
-    }))
+    })
   }
-}
+})
 let isNoti = !appStore.get('closeNotification') && platform.isMacOS
 platform.isMacOS && appStore.onDidChange('closeNotification', (v) => { isNoti = !v })
 

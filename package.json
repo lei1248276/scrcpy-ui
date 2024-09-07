@@ -56,6 +56,7 @@
     "unplugin-auto-import": "^0.18.0",
     "unplugin-element-plus": "^0.8.0",
     "unplugin-vue-components": "^0.27.3",
+    "use-lazy-data": "^1.1.1",
     "vite": "^5.3.1",
     "vue": "^3.4.30",
     "vue-eslint-parser": "^9.4.3",

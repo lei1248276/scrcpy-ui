@@ -114,8 +114,8 @@ importers:
         specifier: ^0.27.3
         version: 0.27.3(@babel/parser@7.24.7)(rollup@4.18.1)(vue@3.4.31(typescript@5.5.3))
       use-lazy-data:
-        specifier: ^1.1.0
-        version: 1.1.0
+        specifier: ^1.1.1
+        version: 1.1.1
       vite:
         specifier: ^5.3.1
         version: 5.3.3(@types/node@20.14.10)
@@ -2589,8 +2589,8 @@ packages:
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
 
-  use-lazy-data@1.1.0:
-    resolution: {integrity: sha512-XHt4hz5oNqu/Tek0Di40OnWFJ96el/BfUJOAMvGZOe83JCrW9eGYRRNICSEotzLXW/S1ZnJ/fP0qUBKGlR5RWg==}
+  use-lazy-data@1.1.1:
+    resolution: {integrity: sha512-zGVcTP7mKMKIIm5isHuGT58ZI/Hl94wNSs+3WH9RMSZquqgobMjyY0V6a4q0kCC8i19bcdY6j1bAeiAOou1XrQ==}
 
   utf8-byte-length@1.0.5:
     resolution: {integrity: sha512-Xn0w3MtiQ6zoz2vFyUVruaCL53O/DwUvkEeOvj+uulMm0BkUGYWmBYVyElqZaSLhY6ZD0ulfU3aBra2aVT4xfA==}
@@ -5452,7 +5452,7 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
-  use-lazy-data@1.1.0: {}
+  use-lazy-data@1.1.1: {}
 
   utf8-byte-length@1.0.5: {}
 
