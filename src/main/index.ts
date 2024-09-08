@@ -1,5 +1,5 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
-import { optimizer, is } from '@electron-toolkit/utils'
+import { app, shell, BrowserWindow } from 'electron'
+import { optimizer, is, platform } from '@electron-toolkit/utils'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { exec } from 'node:child_process'
@@ -44,10 +44,10 @@ export function createWindow() {
   }
 
   const onMessage = (data) => win.webContents.send('scrcpyMessage', data)
-  ipcMain.on('scrcpyMessage', onMessage)
+  Scrcpy.on('scrcpyMessage', onMessage)
   win.on('close', () => {
     console.log('🚀 ~ file: index.ts:51 ~ win.on ~ close:')
-    ipcMain.off('scrcpyMessage', onMessage)
+    Scrcpy.off('scrcpyMessage', onMessage)
   })
 }
 
@@ -87,5 +87,5 @@ app.on('window-all-closed', (e) => {
 
 app.on('before-quit', () => {
   Scrcpy.stop()
-  setTimeout(() => exec('adb kill-server'))
+  exec(`${platform.isWindows ? Scrcpy.scrcpyPath.replace('scrcpy.exe', 'adb.exe') : 'adb'} kill-server`)
 })

@@ -1,4 +1,5 @@
-import { spawn } from 'node:child_process'
+import { spawn, exec } from 'node:child_process'
+import { EventEmitter } from 'node:events'
 import { ipcMain, Notification } from 'electron'
 import { updateTray } from '../tray'
 import { appStore } from '../store/appStore'
@@ -22,29 +23,37 @@ const Noti = useLazyData({
 let isNoti = !appStore.get('closeNotification') && platform.isMacOS
 platform.isMacOS && appStore.onDidChange('closeNotification', (v) => { isNoti = !v })
 
-let scrcpyPath = 'scrcpy'
-// @ts-ignore - .
-platform.isWindows && import('../../../resources/scrcpy-win64-v2.6.1/scrcpy.exe?asset&asarUnpack').then(res => {
-  scrcpyPath = res.default
-})
+class Scrcpy extends EventEmitter<{
+  scrcpyMessage: [{ type: 'stdout' | 'stderr' | 'close' | 'error', data: string }]
+}> {
+  scrcpy: ReturnType<typeof spawn> | null = null
+  scrcpyPath = 'scrcpy'
 
-const Scrcpy = {
-  scrcpy: null as ReturnType<typeof spawn> | null,
+  constructor() {
+    super()
+    platform.isWindows
+      ? import('../../../resources/scrcpy-win64-v2.6.1/scrcpy.exe?asset&asarUnpack').then(res => {
+        this.scrcpyPath = res.default
+        exec(`${this.scrcpyPath.replace('scrcpy.exe', 'adb.exe')} start-server`)
+      })
+      : exec('adb start-server')
+  }
+
   start(options: string[] = []) {
     if (this.scrcpy) this.stop()
 
-    this.scrcpy = spawn(scrcpyPath, options) // 在这里可以添加任何 scrcpy 的选项
+    this.scrcpy = spawn(this.scrcpyPath, options) // 在这里可以添加任何 scrcpy 的选项
     appStore.set('isStartScrcpy', true)
     console.log('🚀 ~ file: index.ts:57 ~ app.on ~ scrcpy:', 'scrcpy 已启动')
 
     this.scrcpy.stdout!.on('data', (output) => {
       console.log(`标准输出: ${output.toString()}`)
-      ipcMain.emit('scrcpyMessage', { type: 'stdout', data: output.toString() })
+      this.emit('scrcpyMessage', { type: 'stdout', data: output.toString() })
     })
 
     this.scrcpy.stderr!.on('data', (errorOutput) => {
       console.error(`标准错误: ${errorOutput.toString()}`)
-      ipcMain.emit('scrcpyMessage', { type: 'stderr', data: errorOutput.toString() })
+      this.emit('scrcpyMessage', { type: 'stderr', data: errorOutput.toString() })
       isNoti && new Notification({
         title: 'Scrcpy 错误提示',
         body: errorOutput.toString(),
@@ -55,23 +64,23 @@ const Scrcpy = {
     this.scrcpy.on('close', (code) => {
       console.log(`子进程退出码: ${code}`)
       this.close()
-      ipcMain.emit('scrcpyMessage', { type: 'close', data: 'scrcpy 已关闭' })
+      this.emit('scrcpyMessage', { type: 'close', data: 'scrcpy 已关闭' })
       isNoti && Noti.close.show()
     })
 
     this.scrcpy.on('error', (err) => {
       console.error(`子进程启动失败: ${err}`)
       this.close()
-      ipcMain.emit('scrcpyMessage', { type: 'error', data: 'scrcpy 启动失败' })
+      this.emit('scrcpyMessage', { type: 'error', data: 'scrcpy 启动失败' })
       isNoti && Noti.error.show()
     })
-  },
+  }
   stop() {
     if (this.scrcpy) {
       this.scrcpy.kill()
       this.scrcpy = null
     }
-  },
+  }
   close() {
     this.scrcpy = null
     updateTray({ id: 'close', checked: true })
@@ -79,12 +88,14 @@ const Scrcpy = {
   }
 }
 
+const scrcpyInstance = new Scrcpy()
+
 ipcMain.on('scrcpy', (_, ip: string, options: string[] = appStore.get('scrcpyOptions')) => {
   if (ip) {
-    Scrcpy.start(['--tcpip=' + ip, ...options])
+    scrcpyInstance.start(['--tcpip=' + ip, ...options])
     updateTray({ label: ip, checked: true })
   } else {
-    Scrcpy.start(['--select-usb', ...options])
+    scrcpyInstance.start(['--select-usb', ...options])
     updateTray({ id: 'usb', label: 'USB', checked: true })
   }
   updateTray({ id: 'close', checked: false })
@@ -92,7 +103,7 @@ ipcMain.on('scrcpy', (_, ip: string, options: string[] = appStore.get('scrcpyOpt
 })
 
 ipcMain.on('scrcpy-kill', () => {
-  Scrcpy.stop()
+  scrcpyInstance.stop()
 })
 
-export default Scrcpy
+export default scrcpyInstance
