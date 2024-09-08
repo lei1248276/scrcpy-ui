@@ -453,10 +453,11 @@ const tableData: TableData[] = reactive([
 const column: ColumnProps[] = [
   {
     prop: 'checked',
-    width: 50,
+    label: 'use',
+    minWidth: 70,
     align: 'center',
-    filters: [{ text: 'checked', value: true }, { text: 'unchecked', value: false }],
-    filterMethod: (value, row) => row.checked === value
+    sortable: true,
+    sortOrders: ['descending', null]
   },
   {
     prop: 'type',
@@ -482,6 +483,7 @@ const column: ColumnProps[] = [
   {
     prop: 'desc',
     label: 'description',
+    minWidth: 100,
     align: 'center'
   }
 ]
