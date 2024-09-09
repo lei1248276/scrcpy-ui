@@ -4,11 +4,17 @@
 	<h1>Scrcpy UI</h1>
 	<p>GUI application for scrcpy</p>
   <br>
-  <div style="display:flex;justify-content: center;gap:10px">
-    <img width="550" height="800" src="./static/dashboard.png" alt="dashboard">
-    <img width="550" height="800" src="./static/log.png" alt="log">
+  <div style="display:flex;justify-content: center;">
+    <img width="400" height="600" src="./static/dashboard.png" alt="dashboard">
+    <img width="400" height="600" src="./static/log.png" alt="log">
+    <img width="135" height="250" src="./static/tray.png" alt="tray">
   </div>
-  <img width="135" height="250" src="./static/tray.png" alt="tray">
+</div>
+
+## quick start
+<div align="center">
+  <img width="155" height="40" src="./static/add-ip.png" alt="add-ip">
+  <img width="350" height="115" src="./static/ip-box.png" alt="ip-box">
 </div>
 
 ## [scrcpy](https://github.com/Genymobile/scrcpy)
