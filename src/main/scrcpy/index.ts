@@ -5,6 +5,7 @@ import { updateTray } from '../tray'
 import { appStore } from '../store/appStore'
 import { platform } from '@electron-toolkit/utils'
 import useLazyData from 'use-lazy-data'
+import fixPath from 'fix-path'
 
 const Noti = useLazyData({
   error() {
@@ -31,6 +32,7 @@ class Scrcpy extends EventEmitter<{
 
   constructor() {
     super()
+    fixPath()
     platform.isWindows
       ? import('../../../resources/scrcpy-win64-v2.6.1/scrcpy.exe?asset&asarUnpack').then(res => {
         this.scrcpyPath = res.default

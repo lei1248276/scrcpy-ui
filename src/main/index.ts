@@ -3,7 +3,6 @@ import { optimizer, is, platform } from '@electron-toolkit/utils'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { exec } from 'node:child_process'
-import fixPath from 'fix-path'
 import Scrcpy from './scrcpy'
 import { createTray } from './tray'
 import { appStore } from './store/appStore'
@@ -58,8 +57,6 @@ app.whenReady().then(() => {
   createTray()
 
   !appStore.get('hideWindow') && createWindow()
-
-  setTimeout(fixPath)
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
