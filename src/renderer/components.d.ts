@@ -51,5 +51,9 @@ declare module 'vue' {
     SelectSeparator: typeof import('./src/components/ui/select/SelectSeparator.vue')['default']
     SelectTrigger: typeof import('./src/components/ui/select/SelectTrigger.vue')['default']
     SelectValue: typeof import('./src/components/ui/select/SelectValue.vue')['default']
+    Tooltip: typeof import('./src/components/ui/tooltip/Tooltip.vue')['default']
+    TooltipContent: typeof import('./src/components/ui/tooltip/TooltipContent.vue')['default']
+    TooltipProvider: typeof import('./src/components/ui/tooltip/TooltipProvider.vue')['default']
+    TooltipTrigger: typeof import('./src/components/ui/tooltip/TooltipTrigger.vue')['default']
   }
 }

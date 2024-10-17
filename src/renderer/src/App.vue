@@ -9,7 +9,7 @@
           class="w-[200px] justify-between"
           :class="ip ? '' : 'text-gray-500'"
         >
-          {{ ip || "USB连接" }}
+          {{ ip || "默认USB连接" }}
           <CaretSortIcon class="ml-2 size-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -55,13 +55,31 @@
       </Button>
     </div>
 
-    <Carousel class="h-[500px] w-full">
+    <TooltipProvider :delay-duration="150">
+      <Tooltip>
+        <TooltipTrigger as-child>
+          <div class="-mb-3 ml-[5%] flex cursor-pointer items-center gap-x-1 self-start text-sm">
+            <QuestionMarkCircledIcon />
+            快捷键指南
+          </div>
+        </TooltipTrigger>
+        <TooltipContent class="h-[70vh] w-screen overflow-y-scroll">
+          <img
+            src="@renderer/assets/shortcuts.png"
+            alt="快捷键指南"
+            class="w-full"
+          >
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+
+    <Carousel class="h-[70vh] w-full">
       <CarouselContent>
         <CarouselItem>
           <JTable
             :data="tableData"
             :column-props="column"
-            height="500px"
+            height="70vh"
             class="mx-auto w-[90%] rounded-md"
           >
             <template #checked="{ row }">
@@ -121,7 +139,7 @@
 
 <script setup lang="ts">
 import type { ColumnProps } from '@renderer/components/JTable/JTable.vue'
-import { CaretSortIcon, CheckIcon, Cross2Icon } from '@radix-icons/vue'
+import { CaretSortIcon, CheckIcon, Cross2Icon, QuestionMarkCircledIcon } from '@radix-icons/vue'
 
 type TableData = {
   type: string
