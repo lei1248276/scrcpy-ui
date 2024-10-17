@@ -34,7 +34,7 @@ class Scrcpy extends EventEmitter<{
     super()
     fixPath()
     platform.isWindows
-      ? import('../../../resources/scrcpy-win64-v2.6.1/scrcpy.exe?asset&asarUnpack').then(res => {
+      ? import('../../../resources/scrcpy-win64/scrcpy.exe?asset&asarUnpack').then(res => {
         this.scrcpyPath = res.default
         exec(`${this.scrcpyPath.replace('scrcpy.exe', 'adb.exe')} start-server`)
       })

@@ -9,7 +9,8 @@ files:
   - '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
   - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
-  - '!resources/scrcpy-win64-v2.6.1'
+  - '!resources/scrcpy-win64'
+  - '!static'
 asarUnpack:
   - resources/**
 win:
@@ -17,8 +18,8 @@ win:
   target:
     - nsis
   extraFiles:
-    - from: 'resources/scrcpy-win64-v2.6.1'
-      to: 'resources/app.asar.unpacked/resources/scrcpy-win64-v2.6.1'
+    - from: 'resources/scrcpy-win64'
+      to: 'resources/app.asar.unpacked/resources/scrcpy-win64'
       filter:
         - '**/*'
 nsis:
